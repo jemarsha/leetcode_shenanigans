@@ -1,0 +1,390 @@
+# The depth of a node is the number of branches from the root to the node.
+# The node height is the number of nodes from between the original node and the deepest leaf that is a descendent.
+# The tree height is the node height of the root, i.e. the number of branches along the longest path in the tree.
+
+
+# This function creates a tree and looks at inserts, checks for balance, and prints
+class node:
+    def __init__(self, value=None):
+        self.value = value
+        self.left_child = None
+        self.right_child = None
+
+
+class BST:
+    def __init__(self):
+        self.root = None
+
+    def insert(self, value):
+        if self.root == None:
+            self.root = node(value)
+        else:
+            self._insert(value, self.root)
+
+    def _insert(self, value, cur_node):
+        if value < cur_node.value:
+            if cur_node.left_child == None:
+                cur_node.left_child = node(value)
+            else:
+                self._insert(value, cur_node.left_child)
+
+        elif value > cur_node.value:
+            if cur_node.right_child == None:
+                cur_node.right_child = node(value)
+            else:
+                self._insert(value, cur_node.right_child)
+
+        else:
+            print("Value already in tree")
+
+    def min_value_node(self, node):
+
+        current = node
+        while current.left_child is not None:
+            current = current.left_child
+
+        return current
+
+    def delete(self, root, value):
+        if self.root == None:
+            return "Not in tree"
+
+        else:
+
+            self._delete(value, self.root)
+        return "Not in tree"
+
+    def _delete(self, value, cur_node):
+
+        # If the key to be deleted is smaller than the current node's
+        # key then it lies in  left subtree
+
+        if value < cur_node.value:
+            cur_node.left_child = self._delete(value, cur_node.left_child)
+
+        # If the key to be deleted is greater than the current_node's
+        # key then it lies in  right subtree
+
+        elif value > cur_node.value:
+
+            cur_node.right_child = self._delete(value, cur_node.right_child)
+
+
+        else:
+
+            # Node with only one child or no child
+
+            if cur_node.left_child is None:
+
+                temp = cur_node.right_child
+
+                cur_node = None
+
+                return temp
+
+            elif cur_node.right_child is None:
+
+                temp = cur_node.left_child
+
+                cur_node = None
+
+                return temp
+
+            # Node with two children
+
+            # Node with two children: Get the inorder successor
+            # (smallest in the right subtree)
+
+            temp = self.min_value_node(cur_node.right_child)
+
+            # Copy the inorder successor's content to this node
+
+            cur_node.value = temp.value
+
+            # Delete the inorder successor
+            cur_node.right_child = self._delete(temp.value, cur_node.right_child)
+
+        return cur_node
+
+    def isValidBST(self):
+        if self.root:  # if there is a root
+            is_found = self._isValidBST(self.root,
+                                        self.root.value)  # go into recursive function with the root and its data
+
+            if is_found is None:  # if nothing left without being returned then it's balanced
+                return True
+            return False
+
+        return True
+
+    def _isValidBST(self, cur_node, value):
+
+        if cur_node.left_child:  # going left first: if there is a left node
+            if value > cur_node.left_child.value:  # if current node's data is greater than left child
+                self._isValidBST(cur_node.left_child, cur_node.left_child.value)  # go to the next left child
+
+            else:
+                return False
+
+        if cur_node.right_child:  # going right if there is a right node
+            if value < cur_node.right_child.value:  # if current node value is less than the right child
+                self._isValidBST(cur_node.right_child, cur_node.right_child.value)  # go to the next right child
+
+            else:
+                return False
+
+    def print_tree(self):
+        self.count = 0
+        if self.root != None:
+            self._print_tree(self.root, self.count)
+        print(self.count)
+
+    def _print_tree(self, cur_node, count):
+        if cur_node != None:
+            self._print_tree(cur_node.left_child, self.count)
+            self.count += 1
+            print(str(cur_node.value))
+            self._print_tree(cur_node.right_child, self.count)
+
+    def print_order(self, traversal_type):
+        if traversal_type == 'preorder':
+            return (self.preorder(tree.root, ""))
+
+        if traversal_type == "inorder":
+            return (self.inorder(tree.root, ""))
+
+        if traversal_type == "postorder":
+            return (self.postorder(tree.root, ""))
+
+        if traversal_type == "level":
+            return (self.level_order(tree.root))
+
+    def level_order(self, root):
+
+        height = 0
+        if root is None:
+            return
+
+        teq = Queue()
+        teq.enqueue(root)
+
+        traversal = ""
+
+        while teq.length() > 0:
+
+            # traversal += str(teq.peek()) + "-"
+
+            node = teq.dequeue()
+
+            traversal += str(node.value) + "-"
+
+            if node.left_child:
+                teq.enqueue(node.left_child)
+
+            if node.right_child:
+                teq.enqueue(node.right_child)
+
+        return (traversal)
+
+    def height_level_order(self, root, all_height):
+
+        l_height = r_height = 1
+        if root is None:
+            return
+
+        teq = Queue()
+        teq.enqueue(root)
+
+        traversal = ""
+
+        while teq.length() > 0:
+
+            # traversal += str(teq.peek()) + "-"
+
+            node = teq.dequeue()
+
+            if l_height == all_height or r_height == all_height:
+                traversal += str(node.value) + "-"
+
+            if node.left_child:
+                teq.enqueue(node.left_child)
+
+                l_height += 1
+
+            if node.right_child:
+                teq.enqueue(node.right_child)
+
+                r_height += 1
+
+        return (traversal)
+
+    def preorder(self, start, traversal):
+        if start:
+            traversal += (str(start.value) + " ")
+            traversal = self.preorder(start.left_child, traversal)
+            traversal = self.preorder(start.right_child, traversal)
+        return traversal
+
+    def preorder_iterative(self):
+
+        if self.root is None:
+            return
+
+        stac = []
+
+        stac.append(self.root)
+
+        while (len(stac) > 0):
+
+            curr = stac.pop()
+
+            print(curr.value)
+
+            if curr.right_child is not None:
+                stac.append(curr.right_child)
+
+            if curr.left_child is not None:
+                stac.append(curr.left_child)
+
+    def inorder(self, start, traversal):
+
+        if start:
+            traversal = self.inorder(start.left_child, traversal)
+            traversal += (str(start.value) + " ")
+            traversal = self.inorder(start.right_child, traversal)
+
+        return traversal
+
+    def inorder_iterative(self):
+
+        current = self.root
+
+        stac = []
+
+        # stac.append(current)
+
+        while len(stac) >= 0:
+            if current is not None:
+
+                stac.append(current)
+
+                current = current.left_child
+
+            elif (stac):
+                current = stac.pop()
+
+                print(current.value, end=' ')
+
+                current = current.right_child
+
+            else:
+                break
+        print()
+
+    def postorder(self, start, traversal):
+
+        if start:
+            traversal = self.postorder(start.left_child, traversal)
+            traversal = self.postorder(start.right_child, traversal)
+            traversal += (str(start.value) + " ")
+
+        return traversal
+
+    def values_at_height(self, n):
+        out = []
+
+        def helper(root, m):
+            if root:
+                helper(root.left_child, m)
+                if self.height(root) == m:
+                    out.append(root.value)
+                helper(root.right_child, m)
+
+        if self.root:
+            helper(self.root, n)
+        return out
+
+    def height1(self, root):
+
+        self.test = 0
+
+        def height(root):
+            if root is None:
+                return 0
+
+            left_height = height(root.left_child)
+            right_height = height(root.right_child)
+            self.test = (1 + max(left_height, right_height))
+            return 1 + max(left_height, right_height)
+
+        height(root)
+        return self.test
+
+    def diameterOfBinaryTree(self, root):
+        if root is None:
+            return 0
+
+        if root.left_child is None and root.right_child is None:
+            return 0
+
+        self.diam = 1
+
+        def depth(root):
+            if root is None:
+                return 0
+            left_height = depth(root.left_child)
+            right_height = depth(root.right_child)
+
+            self.diam = max(self.diam, 1 + left_height + right_height)
+            return 1 + max(left_height, right_height)
+
+        depth(root)
+        return self.diam - 1
+
+    # Function to find LCA of n1 and n2. The function assumes
+    # that both n1 and n2 are present in BST
+    def LCA(self, root, n1, n2):
+
+        # Base Case
+        if root is None:
+            return None
+
+        # If both n1 and n2 are smaller than root, then LCA
+        # lies in left
+        if (root.value > n1 and root.value > n2):
+            return LCA(root.left_child, n1, n2)
+
+        # If both n1 and n2 are greater than root, then LCA
+        # lies in right
+        if (root.value < n1 and root.value < n2):
+            return LCA(root.right_child, n1, n2)
+
+        return root
+
+
+def fill_tree(tree, elems=20, max_int=50):
+    from random import randint
+
+    for elem in range(elems):
+        elem = randint(0, max_int)
+        tree.insert(elem)
+
+    return tree
+
+
+if __name__ == '__main__':
+    tree = BST()
+    tree = fill_tree(tree)
+    tree.insert(50)
+#tree.insert(30)
+#tree.insert(22)
+
+#tree.
+
+    print(tree.print_order('preorder'))
+#print(tree.LCA(50,35,13))
+    #print(tree.inorder_iterative())
+    # tree.insert(None)
+    # tree.print_tree()
+
+
